@@ -2,7 +2,7 @@ package com.sysu.server;
 
 import com.sysu.model.RpcResponse;
 import com.sysu.model.RpcRequest;
-import com.sysu.register.LocalRegister;
+import com.sysu.model.ServiceInfo;
 import com.sysu.serializer.JdkSerializer;
 import com.sysu.serializer.Serializer;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 /**
@@ -19,11 +18,13 @@ import java.net.SocketTimeoutException;
 @AllArgsConstructor
 public class ServerHandler implements Runnable{
     private Socket socket;  //需要处理的客户端socket
+    private String serviceAddress;
     final int timeout = 5000;
     long lastReadTime; //记录最后一次读取数据的时间
 
-    public ServerHandler(Socket socket) {
+    public ServerHandler(Socket socket, String serviceAddress) {
         this.socket = socket;
+        this.serviceAddress = serviceAddress;
         this.lastReadTime = System.currentTimeMillis();
     }
 
@@ -79,8 +80,14 @@ public class ServerHandler implements Runnable{
                 RpcResponse rpcResponse;
                 try{
                     //用反射机制去调用对应的方法
-                    //从本地注册中心中获取调用服务的实现类
-                    Class<?> serviceImpl = LocalRegister.getImplClass(rpcRequest.getServiceName());
+                    //add 从注册中心中获取调用服务的实现类
+                    RegisterConsumerHandler registerConsumerHandler = new RegisterConsumerHandler();
+                    String serviceImplClassName = registerConsumerHandler.discoverServiceImplClassName(rpcRequest.getServiceName(), serviceAddress);
+                    if (serviceImplClassName == null) {
+                        throw new RuntimeException("没有找到服务实现类: " + serviceImplClassName);
+                    }
+
+                    Class<?> serviceImpl = Class.forName(serviceImplClassName);
                     Method method = serviceImpl.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
                     Object result = method.invoke(serviceImpl.newInstance(), rpcRequest.getParameters());
 

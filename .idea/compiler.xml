@@ -16,7 +16,6 @@
     <bytecodeTargetLevel>
       <module name="Consumer" target="8" />
       <module name="Provider" target="8" />
-      <module name="Provider-" target="8" />
       <module name="Provider-Common" target="8" />
       <module name="rpc" target="8" />
     </bytecodeTargetLevel>

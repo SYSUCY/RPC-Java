@@ -17,7 +17,7 @@ public class Server {
             while(true){
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("新的服务已经建立");
-                new Thread(new ServerHandler(clientSocket)).start();
+                new Thread(new ServerHandler(clientSocket, hostname + ":" + port)).start();
             }
         } catch (IOException e) {
             e.printStackTrace();
