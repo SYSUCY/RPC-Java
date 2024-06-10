@@ -3,10 +3,13 @@ package com.sysu.proxy;
 import com.sysu.loadbalance.LoadBalance;
 import com.sysu.model.RpcRequest;
 import com.sysu.model.RpcResponse;
+import com.sysu.model.ServiceInfo;
 import com.sysu.serializer.JdkSerializer;
+import com.sysu.serializer.JsonSerializer;
 import com.sysu.serializer.Serializer;
-import com.sysu.server.RegisterConsumerHandler;
+import com.sysu.register.RegisterConsumerHandler;
 
+import javax.xml.ws.Service;
 import java.io.*;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -23,46 +26,47 @@ public class ProxyFactory {
         Object proxyInstance = Proxy.newProxyInstance(interfaceClass.getClassLoader(), new Class[]{interfaceClass}, new InvocationHandler() {
             @Override
             public Object invoke(Object o, Method method, Object[] args) throws Throwable {
-                RpcRequest rpcRequest = new RpcRequest(interfaceClass.getName(), method.getName(),
-                        method.getParameterTypes(), args);
-
-                //add 从注册中心中获取提供该服务的服务器IP地址和端口号
+                //服务发现，从注册中心获取提供服务的服务器地址
                 RegisterConsumerHandler registerConsumerHandler = new RegisterConsumerHandler();
-                List<String> addrs = registerConsumerHandler.discoverServiceAddress(interfaceClass.getName());
-                if(addrs.isEmpty()){
+                List<ServiceInfo> serviceInfos = registerConsumerHandler.discoverServiceInfo(interfaceClass.getName());
+                if(serviceInfos.isEmpty()){
                     throw new RuntimeException("没有服务器提供该服务");
                 }
-                else{
-                    System.out.println("所有的服务发现: " + addrs);
-                }
 
-                //add 从多个服务段中选择一个（负载均衡）
-                String addr = LoadBalance.random(addrs);
-                System.out.println(addr);
-                String[] addrParts = addr.split(":");
+                //负载均衡，随机选择一个服务器
+                ServiceInfo serviceInfo = LoadBalance.random(serviceInfos);
+                String[] addrParts = serviceInfo.getServiceAddress().split(":");
                 String host = addrParts[0];
                 int port = Integer.parseInt(addrParts[1]);
 
-                //服务调用，里面才是真正处理网络传输的地方
-                //指定序列化器，接口指向实现类的方式提高扩展性
-                final Serializer serializer = new JdkSerializer();
+                //选择序列化的方式
+                //实现1：java内置的序列化
+                //final Serializer serializer = new JdkSerializer();
+                //实现2：Json序列化
+                final Serializer serializer = new JsonSerializer();
+                //服务调用，其实就是网络传输的过程
                 Socket socket = null;
-
                 try{
-                    // 尝试与对应的服务端建立连接
+                    //尝试与负载均衡算法选择的服务器建立连接
                     socket = new Socket(host, port);
-                    // 给socket操作设置超时时间
+                    //设置io读取/写出超时时间
                     socket.setSoTimeout(2000);
 
-                    // 从socket中获取输入和输出流
+                    //从socket中获取输入和输出流
                     DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
                     DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
+                    //向服务器发送请求对象
                     try{
-                        // 序列化请求
+                        //构造请求对象
+                        RpcRequest rpcRequest = RpcRequest.builder()
+                                .serviceImplName(serviceInfo.getServiceImplClassName())
+                                .methodName(method.getName())
+                                .parameterTypes(method.getParameterTypes())
+                                .parameters(args)
+                                .build();
                         byte[] rpcRequestBytes = serializer.serialize(rpcRequest);
-
-                        // 发送带有长度的请求，解决半包粘包问题
+                        //在发送字节流之前，先发送一个长度字段，保证服务端能够接收完整的字节流
                         out.writeInt(rpcRequestBytes.length);
                         out.write(rpcRequestBytes);
                         out.flush();
@@ -72,14 +76,15 @@ public class ProxyFactory {
                         System.err.println("发送请求到服务端，写数据时出现的异常：" + e.getMessage());
                     }
 
+                    //接收服务器返回的响应对象
                     try {
-                        // 读取响应对象的字节流
+                        //读取响应对象的字节流
                         int len = in.readInt();
                         byte[] responseBytes = new byte[len];
                         in.readFully(responseBytes);
-
+                        //响应对象的字节流反序列化为响应对象
                         RpcResponse rpcResponse = serializer.deserialize(responseBytes, RpcResponse.class);
-                        // 请求中带有异常信息，向外抛出
+                        //响应对象带有异常信息，向外抛出
                         if(rpcResponse.getException() != null){
                             throw rpcResponse.getException();
                         }
@@ -89,6 +94,7 @@ public class ProxyFactory {
                     } catch (IOException e) {
                         System.err.println("从服务端接收响应时，读数据导致的异常: " + e.getMessage());
                     }
+
                 } catch (UnknownHostException e) {
                     System.err.println("主机未知: " + e.getMessage());
                 } catch (SocketTimeoutException e) {

@@ -1,13 +1,13 @@
 package com.sysu.register;
 
+import com.sysu.model.ServiceInfo;
+
 import java.util.List;
 
 public interface IRegister {
     void register(String serviceName, String serviceAddress, String serviceImplClassName);
 
-    List<String> getServiceAddr(String serviceName);
-
-    String getServiceImplClassName(String serviceName, String serviceAddress);
+    List<ServiceInfo> getServiceInfos(String serviceName);
 
     void heartbeat(String serviceName, String serviceAddress);
 }

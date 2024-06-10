@@ -1,11 +1,9 @@
 package com.sysu.server;
 
-import com.sysu.model.RpcResponse;
 import com.sysu.model.RpcRequest;
-import com.sysu.model.ServiceInfo;
-import com.sysu.serializer.JdkSerializer;
+import com.sysu.model.RpcResponse;
+import com.sysu.serializer.JsonSerializer;
 import com.sysu.serializer.Serializer;
-import lombok.AllArgsConstructor;
 
 import java.io.*;
 import java.lang.reflect.Method;
@@ -15,11 +13,10 @@ import java.net.SocketTimeoutException;
 /**
  * 处理客户端请求的具体逻辑
  */
-@AllArgsConstructor
 public class ServerHandler implements Runnable{
     private Socket socket;  //需要处理的客户端socket
-    private String serviceAddress;
-    final int timeout = 5000;
+    private String serviceAddress;  //服务提供者的地址
+    final int timeout = 2000;
     long lastReadTime; //记录最后一次读取数据的时间
 
     public ServerHandler(Socket socket, String serviceAddress) {
@@ -30,95 +27,66 @@ public class ServerHandler implements Runnable{
 
     @Override
     public void run() {
-        final Serializer serializer = new JdkSerializer();
-
+        //选择序列化的方式
+        //实现1：java内置的序列化
+        //final Serializer serializer = new JdkSerializer();
+        //实现2：Json序列化
+        final Serializer serializer = new JsonSerializer();
         try{
             DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-            //设置超时时间
+            //设置io读取/写出超时时间
             socket.setSoTimeout(timeout);
-            // 不断处理客户端socket发送来的请求
-            while (true){
-                RpcRequest rpcRequest = null;
-                try{
-                    // 根据长度字段获取请求的数据流（防止粘包）
-                    if (in.available() > 0) {
-                        lastReadTime = System.currentTimeMillis();  //更新最后一次读取数据的时间
-                        int len = in.readInt();
-                        if (len <= 0) {
-                            System.err.println("无效的请求长度: " + len);
-                            break;
-                        }
 
-                        byte[] rpcRequestBytes = new byte[len];
-                        in.readFully(rpcRequestBytes);
+            //接收客户端发送的请求对象
+            RpcRequest rpcRequest = null;
+            try{
+                //先接受请求对象的字节流的长度，确保能够接收到完整的请求对象字节流
+                int len = in.readInt();
+                byte[] rpcRequestBytes = new byte[len];
+                in.readFully(rpcRequestBytes);
+                //将请求对象字节流反序列化成请求对象
+                rpcRequest = serializer.deserialize(rpcRequestBytes, RpcRequest.class);
+            }catch (SocketTimeoutException e) {
+                System.err.println("读取客户端请求数据时，读数据导致的超时: " + e.getMessage());
+            } catch (IOException e) {
+                System.err.println("读取客户端请求数据时，读数据导致的异常: " + e.getMessage());
+            }
 
-                        // 反序列化请求
-                        rpcRequest = serializer.deserialize(rpcRequestBytes, RpcRequest.class);
-                    } else {
-                        //检查是否超时
-                        if(System.currentTimeMillis() - lastReadTime > timeout){
-                            System.err.println("超过2秒没有接收到客户端请求，连接超时关闭");
-                            break;
-                        }
-                        try {
-                            Thread.sleep(1000); // 等待1秒钟
-                            continue;
-                        } catch (InterruptedException e) {
-                            System.err.println("线程等待被中断: " + e.getMessage());
-                        }
-                    }
-                }catch (SocketTimeoutException e) {
-                    System.err.println("读取客户端请求数据时，读数据导致的超时: " + e.getMessage());
-                    break; // 退出循环，结束当前线程
-                } catch (IOException e) {
-                    System.err.println("读取客户端请求数据时，读数据导致的异常: " + e.getMessage());
-                    break; // 退出循环，结束当前线程
-                }
+            //处理请求并根据处理结果构造响应对象
+            RpcResponse rpcResponse;
+            try{
+                Class<?> serviceImpl = Class.forName(rpcRequest.getServiceImplName());
+                Method method = serviceImpl.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
+                Object result = method.invoke(serviceImpl.newInstance(), rpcRequest.getParameters());
+                //构造响应对象
+                rpcResponse = RpcResponse.builder()
+                        .data(result)
+                        .dataType(result != null ? result.getClass() : null)
+                        .message("Success")
+                        .build();
+            }catch (Exception e){
+                rpcResponse = RpcResponse.builder()
+                        .message(e.getMessage())
+                        .exception(e)
+                        .build();
+                System.err.println("调用映射服务的方法时，处理数据导致的异常: " + e.getMessage());
+            }
 
-                // 处理请求并将处理结果封装到响应对象中
-                RpcResponse rpcResponse;
-                try{
-                    //用反射机制去调用对应的方法
-                    //add 从注册中心中获取调用服务的实现类
-                    RegisterConsumerHandler registerConsumerHandler = new RegisterConsumerHandler();
-                    String serviceImplClassName = registerConsumerHandler.discoverServiceImplClassName(rpcRequest.getServiceName(), serviceAddress);
-                    if (serviceImplClassName == null) {
-                        throw new RuntimeException("没有找到服务实现类: " + serviceImplClassName);
-                    }
-
-                    Class<?> serviceImpl = Class.forName(serviceImplClassName);
-                    Method method = serviceImpl.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
-                    Object result = method.invoke(serviceImpl.newInstance(), rpcRequest.getParameters());
-
-                    rpcResponse = RpcResponse.builder()
-                            .data(result)
-                            .dataType(result != null ? result.getClass() : null)
-                            .message("Success")
-                            .build();
-                }catch (Exception e){
-                    rpcResponse = RpcResponse.builder()
-                            .message(e.getMessage())
-                            .exception(e)
-                            .build();
-                    System.err.println("调用映射服务的方法时，处理数据导致的异常: " + e.getMessage());
-                }
-
+            //向客户端发送响应对象
+            try {
                 //序列化响应对象
                 byte[] rpcResponseBytes = serializer.serialize(rpcResponse);
-                try {
-                    //将序列化后的响应对象发送给客户端
-                    out.writeInt(rpcResponseBytes.length);
-                    out.write(rpcResponseBytes);
-                    out.flush();
-                }catch (SocketTimeoutException e) {
-                    System.err.println("发送响应数据时，写数据导致的超时: " + e.getMessage());
-                    break;
-                } catch (IOException e) {
-                    System.err.println("发送响应数据时，写数据导致的异常: " + e.getMessage());
-                    break;
-                }
+                //将序列化后的响应对象发送给客户端
+                out.writeInt(rpcResponseBytes.length);
+                out.write(rpcResponseBytes);
+                out.flush();
+            }catch (SocketTimeoutException e) {
+                System.err.println("发送响应数据时，写数据导致的超时: " + e.getMessage());
+            } catch (IOException e) {
+                System.err.println("发送响应数据时，写数据导致的异常: " + e.getMessage());
             }
+
         } catch (IOException e) {
             // 捕获IO流操作异常
             System.err.println("I/O错误: " + e.getMessage());

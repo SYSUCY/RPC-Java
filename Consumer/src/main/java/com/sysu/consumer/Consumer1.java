@@ -12,8 +12,14 @@ public class Consumer1 {
         String result1 = helloService.sayHello("chenyun");
         //输出返回结果
         System.out.println(result1);
+
         //调用HelloService接口的方法2
-        //String result2 = helloService.sayHi("chenyun");
-        //System.out.println(result2);
+        String result2 = helloService.sayHi("chenyun");
+        System.out.println(result2);
+
+        //调用GoodByeService接口的方法
+        GoodByeService goodByeService = ProxyFactory.getProxy(GoodByeService.class);
+        String result3 = goodByeService.sayGoodBye("chenyun");
+        System.out.println(result3);
     }
 }

@@ -1,4 +1,4 @@
-package com.sysu.server;
+package com.sysu.register;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * 注册中心给服务端提供的服务
+ */
 public class RegisterProviderHandler {
     private final List<String[]> serviceNamesAndServiceImplNames;
     private final String serviceAddress;

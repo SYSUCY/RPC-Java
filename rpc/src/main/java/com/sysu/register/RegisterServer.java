@@ -1,8 +1,10 @@
 package com.sysu.register;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import com.sysu.model.ServiceInfo;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 public class RegisterServer {
     private final IRegister serviceRegistry = new RemoteRegister();
@@ -52,42 +53,26 @@ public class RegisterServer {
         });
 
         // 服务发现处理器
-        server.createContext("/discover", new HttpHandler() {
-            @Override
-            public void handle(HttpExchange httpExchange) throws IOException {
-                if("GET".equals(httpExchange.getRequestMethod())){
-                    String query = httpExchange.getRequestURI().getQuery();
-                    String serviceName = query.split("=")[1];
-                    List<String> address = serviceRegistry.getServiceAddr(serviceName);
-                    String response = address.stream().collect(Collectors.joining(","));
-                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
-                    OutputStream os = httpExchange.getResponseBody();
-                    os.write(response.getBytes());
-                    os.close();
-                }else{
-                    httpExchange.sendResponseHeaders(405, -1);
-                }
-            }
-        });
-
-        // 服务实现类名称处理器
-        server.createContext("/getServiceImplClassName", new HttpHandler() {
+        server.createContext("/discoverServiceInfo", new HttpHandler() {
             @Override
             public void handle(HttpExchange httpExchange) throws IOException {
                 if ("GET".equals(httpExchange.getRequestMethod())) {
                     String query = httpExchange.getRequestURI().getQuery();
-                    String serviceName = query.split("&")[0].split("=")[1];
-                    String serviceAddress = query.split("&")[1].split("=")[1];
-                    String serviceImplClassName = serviceRegistry.getServiceImplClassName(serviceName, serviceAddress);
-                    httpExchange.sendResponseHeaders(200, serviceImplClassName.getBytes().length);
+                    String serviceName = query.split("=")[1];
+                    List<ServiceInfo> serviceInfos = serviceRegistry.getServiceInfos(serviceName);
+                    System.out.println(serviceInfos);
+                    ObjectMapper mapper = new ObjectMapper();
+                    String response = mapper.writeValueAsString(serviceInfos);
+                    httpExchange.sendResponseHeaders(200, response.getBytes().length);
                     OutputStream os = httpExchange.getResponseBody();
-                    os.write(serviceImplClassName.getBytes());
+                    os.write(response.getBytes());
                     os.close();
                 } else {
                     httpExchange.sendResponseHeaders(405, -1);
                 }
             }
         });
+
 
         // 服务心跳处理器
         server.createContext("/heartbeat", new HttpHandler() {

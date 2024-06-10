@@ -27,28 +27,8 @@ public class RemoteRegister implements IRegister{
     }
 
     @Override
-    public synchronized List<String> getServiceAddr(String serviceName) {
-        List<ServiceInfo> serviceInfos = serviceMap.getOrDefault(serviceName, new ArrayList<>());
-        List<String> serviceAddresses = new ArrayList<>();
-        for (ServiceInfo serviceInfo : serviceInfos) {
-            serviceAddresses.add(serviceInfo.getServiceAddress());
-        }
-        return serviceAddresses;
-    }
-
-    @Override
-    public synchronized String getServiceImplClassName(String serviceName, String serviceAddress) {
-        List<ServiceInfo> serviceInfos = serviceMap.get(serviceName);
-        if (serviceInfos != null) {
-            for (ServiceInfo serviceInfo : serviceInfos) {
-                System.out.println(serviceInfo.getServiceAddress() + " " + serviceInfo.getServiceImplClassName());
-                System.out.println(serviceAddress);
-                if (serviceInfo.getServiceAddress().equals(serviceAddress)) {
-                    return serviceInfo.getServiceImplClassName();
-                }
-            }
-        }
-        return null;
+    public synchronized List<ServiceInfo> getServiceInfos(String serviceName) {
+        return new ArrayList<>(serviceMap.getOrDefault(serviceName, new ArrayList<>()));
     }
 
     @Override
@@ -59,7 +39,7 @@ public class RemoteRegister implements IRegister{
 
     public void checkHeartbeats() {
         long currentTime = System.currentTimeMillis();
-        long timeout = 30_000; // 30秒没有心跳则认为服务下线
+        long timeout = 30000; // 30秒没有心跳则认为服务下线
 
         heartbeatMap.entrySet().removeIf(entry -> {
             if (currentTime - entry.getValue() > timeout) {

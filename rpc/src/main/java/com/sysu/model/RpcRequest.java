@@ -16,7 +16,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class RpcRequest implements Serializable {
-    private String serviceName;   //调用方法属于的接口
+    private String serviceImplName;   //调用方法属于的接口
 
     private String methodName;  //调用的方法
 
