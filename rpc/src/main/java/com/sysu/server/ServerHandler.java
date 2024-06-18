@@ -15,28 +15,24 @@ import java.net.SocketTimeoutException;
  */
 public class ServerHandler implements Runnable{
     private Socket socket;  //需要处理的客户端socket
-    private String serviceAddress;  //服务提供者的地址
-    final int timeout = 2000;
-    long lastReadTime; //记录最后一次读取数据的时间
+    private final int TIMEOUT = 2000;
+    //选择序列化的方式
+    //实现1：java内置的序列化
+    //final Serializer serializer = new JdkSerializer();
+    //实现2：Json序列化
+    final Serializer serializer = new JsonSerializer();
 
-    public ServerHandler(Socket socket, String serviceAddress) {
+    public ServerHandler(Socket socket) {
         this.socket = socket;
-        this.serviceAddress = serviceAddress;
-        this.lastReadTime = System.currentTimeMillis();
     }
 
     @Override
     public void run() {
-        //选择序列化的方式
-        //实现1：java内置的序列化
-        //final Serializer serializer = new JdkSerializer();
-        //实现2：Json序列化
-        final Serializer serializer = new JsonSerializer();
         try{
             DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             DataOutputStream out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
             //设置io读取/写出超时时间
-            socket.setSoTimeout(timeout);
+            socket.setSoTimeout(TIMEOUT);
 
             //接收客户端发送的请求对象
             RpcRequest rpcRequest = null;
@@ -65,12 +61,18 @@ public class ServerHandler implements Runnable{
                         .dataType(result != null ? result.getClass() : null)
                         .message("Success")
                         .build();
-            }catch (Exception e){
+            } catch (ClassNotFoundException | NoSuchMethodException e){
                 rpcResponse = RpcResponse.builder()
                         .message(e.getMessage())
                         .exception(e)
                         .build();
-                System.err.println("调用映射服务的方法时，处理数据导致的异常: " + e.getMessage());
+                System.err.println("服务或方法为找到: " + e.getMessage());
+            } catch (Exception e){
+                rpcResponse = RpcResponse.builder()
+                        .message(e.getMessage())
+                        .exception(e)
+                        .build();
+                System.err.println("内部服务器错误：" + e.getMessage());
             }
 
             //向客户端发送响应对象
