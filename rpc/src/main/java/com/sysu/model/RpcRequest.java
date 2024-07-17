@@ -20,7 +20,7 @@ public class RpcRequest implements Serializable {
 
     private String methodName;  //调用的方法
 
-    private Class[] parameterTypes; //参数类型
+    private Class<?>[] parameterTypes; //参数类型
 
     private Object[] parameters;    //参数值
 }

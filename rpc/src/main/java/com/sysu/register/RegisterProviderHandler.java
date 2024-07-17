@@ -1,10 +1,13 @@
 package com.sysu.register;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -14,12 +17,23 @@ import java.util.TimerTask;
 public class RegisterProviderHandler {
     private final List<String[]> serviceNamesAndServiceImplNames;
     private final String serviceAddress;
-    private final String registryAddress;
+    private String registryAddress;
 
     public RegisterProviderHandler(List<String[]> serviceNamesAndServiceImplNames, String serviceAddress){
         this.serviceNamesAndServiceImplNames = serviceNamesAndServiceImplNames;
         this.serviceAddress = serviceAddress;
-        registryAddress = "localhost:8081";
+        Properties properties = new Properties();
+        // 加载配置文件
+        try (InputStream input = RegisterConsumerHandler.class.getClassLoader().getResourceAsStream("register.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return; // 如果加载配置文件失败，直接返回
+        }
+        // 从配置文件中读取主机名和端口号
+        String host = properties.getProperty("host");
+        int port = Integer.parseInt(properties.getProperty("port"));
+        registryAddress = host + ":" + port;
     }
 
     public void start() throws Exception {
@@ -37,9 +51,6 @@ public class RegisterProviderHandler {
                 }
             }
         }, 0, 10000);   //每10秒发送一次心跳
-
-        // 模拟服务启动
-        System.out.println("Services " + serviceNamesAndServiceImplNames + " started at " + serviceAddress);
     }
 
     private void registerService(String serviceName, String serviceImplName) throws Exception {
@@ -55,9 +66,9 @@ public class RegisterProviderHandler {
         }
         int responseCode = httpURLConnection.getResponseCode();
         if(responseCode == 200){
-            System.out.println("Service registered successfully");
+            System.out.println(serviceName + "注册成功");
         }else{
-            throw new RuntimeException("Failed to register service");
+            throw new RuntimeException(serviceName + "注册成功");
         }
     }
 
@@ -73,7 +84,7 @@ public class RegisterProviderHandler {
             }
             int responseCode = connection.getResponseCode();
             if (responseCode != 200) {
-                System.err.println("Failed to send heartbeat for service " + serviceName + ": " + responseCode);
+                System.err.println("发送心跳失败 " + serviceName + ": " + responseCode);
             }
         } catch (Exception e) {
             e.printStackTrace();

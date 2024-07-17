@@ -5,21 +5,34 @@ import com.sysu.model.ServiceInfo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * 注册中心给客户端提供的服务
  */
 public class RegisterConsumerHandler {
-    private final String registryAddress;
+    private String registryAddress;
 
     public RegisterConsumerHandler(){
-        registryAddress = "localhost:8081";
+        Properties properties = new Properties();
+        // 加载配置文件
+        try (InputStream input = RegisterConsumerHandler.class.getClassLoader().getResourceAsStream("register.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return; // 如果加载配置文件失败，直接返回
+        }
+        // 从配置文件中读取主机名和端口号
+        String host = properties.getProperty("host");
+        int port = Integer.parseInt(properties.getProperty("port"));
+        registryAddress = host + ":" + port;
     }
 
     public List<ServiceInfo> discoverServiceInfo(String serviceName) {

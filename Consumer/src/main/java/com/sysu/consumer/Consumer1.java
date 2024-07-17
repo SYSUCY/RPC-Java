@@ -1,5 +1,6 @@
 package com.sysu.consumer;
 
+import com.sysu.model.Person;
 import com.sysu.proxy.ProxyFactory;
 import com.sysu.service.GoodByeService;
 import com.sysu.service.HelloService;
@@ -17,9 +18,13 @@ public class Consumer1 {
         String result2 = helloService.sayHi("chenyun");
         System.out.println(result2);
 
+        //调用HelloService接口的方法3
+        String result3 = helloService.sayHelloToPerson(new Person("chenyun", 20));
+        System.out.println(result3);
+
         //调用GoodByeService接口的方法
         GoodByeService goodByeService = ProxyFactory.getProxy(GoodByeService.class);
-        String result3 = goodByeService.sayGoodBye("chenyun");
-        System.out.println(result3);
+        String result4 = goodByeService.sayGoodBye("chenyun");
+        System.out.println(result4);
     }
 }

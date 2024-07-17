@@ -12,13 +12,27 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class RegisterServer {
     private final IRegister serviceRegistry = new RemoteRegister();
+    private final Properties properties = new Properties();
 
-    public void start(String host, int port) throws IOException {
+    public void start() throws IOException {
+        // 加载配置文件
+        try (InputStream input = RegisterServer.class.getClassLoader().getResourceAsStream("register.properties")) {
+            properties.load(input);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return; // 如果加载配置文件失败，直接返回
+        }
+
+        // 从配置文件中读取主机名和端口号
+        String host = properties.getProperty("host");
+        int port = Integer.parseInt(properties.getProperty("port"));
+
         HttpServer server = HttpServer.create(new InetSocketAddress(host, port), 0);
 
         // 服务注册处理器
@@ -111,7 +125,7 @@ public class RegisterServer {
 
         server.setExecutor(null);
         server.start();
-        System.out.println("Registry server started on address " + host + ":" + port);
+        System.out.println("注册中心正在监听 " + host + ":" + port);
 
         // 定期检测服务超时
         Timer timer = new Timer(true);
@@ -124,6 +138,6 @@ public class RegisterServer {
     }
 
     public static void main(String[] args) throws IOException {
-        new RegisterServer().start("localhost", 8081);
+        new RegisterServer().start();
     }
 }

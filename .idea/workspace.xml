@@ -5,11 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="602934f4-02a3-4dca-a271-1c72231ab10a" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Provider-Common/src/main/java/com/sysu/model/Person.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Provider/src/main/resources/address.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/rpc/src/main/resources/register.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consumer/src/main/java/com/sysu/consumer/Consumer1.java" beforeDir="false" afterPath="$PROJECT_DIR$/Consumer/src/main/java/com/sysu/consumer/Consumer1.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Consumer/target/classes/com/sysu/consumer/Consumer1.class" beforeDir="false" afterPath="$PROJECT_DIR$/Consumer/target/classes/com/sysu/consumer/Consumer1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider-Common/src/main/java/com/sysu/service/HelloService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Provider-Common/src/main/java/com/sysu/service/HelloService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider-Common/target/classes/com/sysu/service/HelloService.class" beforeDir="false" afterPath="$PROJECT_DIR$/Provider-Common/target/classes/com/sysu/service/HelloService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider/src/main/java/com/sysu/Provider.java" beforeDir="false" afterPath="$PROJECT_DIR$/Provider/src/main/java/com/sysu/Provider.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider/src/main/java/com/sysu/Provider2.java" beforeDir="false" afterPath="$PROJECT_DIR$/Provider/src/main/java/com/sysu/Provider2.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider/src/main/java/com/sysu/serviceImpl/HelloServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/Provider/src/main/java/com/sysu/serviceImpl/HelloServiceImpl.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Provider/target/classes/com/sysu/Provider.class" beforeDir="false" afterPath="$PROJECT_DIR$/Provider/target/classes/com/sysu/Provider.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/server/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/server/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider/target/classes/com/sysu/Provider2.class" beforeDir="false" afterPath="$PROJECT_DIR$/Provider/target/classes/com/sysu/Provider2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Provider/target/classes/com/sysu/serviceImpl/HelloServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/Provider/target/classes/com/sysu/serviceImpl/HelloServiceImpl.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/loadbalance/LoadBalance.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/loadbalance/LoadBalance.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/model/RpcRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/model/RpcRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/proxy/ProxyFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/proxy/ProxyFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/register/RegisterConsumerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/register/RegisterConsumerHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/register/RegisterProviderHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/register/RegisterProviderHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/register/RegisterServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/register/RegisterServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/server/ServerHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/src/main/java/com/sysu/server/ServerHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/server/Server.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/server/Server.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/loadbalance/LoadBalance.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/loadbalance/LoadBalance.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/model/RpcRequest$RpcRequestBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/model/RpcRequest$RpcRequestBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/model/RpcRequest.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/model/RpcRequest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/proxy/ProxyFactory$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/proxy/ProxyFactory$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/proxy/ProxyFactory.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/proxy/ProxyFactory.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterConsumerHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterConsumerHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterProviderHandler$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterProviderHandler$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterProviderHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterProviderHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$2.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$2.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$3.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$3.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$4.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer$4.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/register/RegisterServer.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/rpc/target/classes/com/sysu/server/ServerHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/rpc/target/classes/com/sysu/server/ServerHandler.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -70,7 +99,7 @@
     <property name="project.structure.side.proportion" value="0.0" />
     <property name="settings.editor.selected.configurable" value="ai.codegeex.plugin.settings.ApplicationConfigurable" />
   </component>
-  <component name="RunManager" selected="Application.Consumer1">
+  <component name="RunManager" selected="Application.Provider">
     <configuration name="Consumer1" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.sysu.consumer.Consumer1" />
       <module name="Consumer" />
@@ -138,11 +167,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.Consumer1" />
-        <item itemvalue="Application.MutiConsumers" />
         <item itemvalue="Application.Provider" />
         <item itemvalue="Application.RegisterServer" />
+        <item itemvalue="Application.MutiConsumers" />
         <item itemvalue="Application.Provider2" />
+        <item itemvalue="Application.Consumer1" />
       </list>
     </recent_temporary>
   </component>
@@ -193,6 +222,13 @@
       <workItem from="1718165304087" duration="745000" />
       <workItem from="1718182557228" duration="4549000" />
       <workItem from="1718590583861" duration="3821000" />
+      <workItem from="1718692794357" duration="2110000" />
+      <workItem from="1718757119884" duration="5776000" />
+      <workItem from="1718763298030" duration="220000" />
+      <workItem from="1718769415088" duration="34000" />
+      <workItem from="1718785777153" duration="4459000" />
+      <workItem from="1719111857902" duration="2000" />
+      <workItem from="1719364748764" duration="44000" />
     </task>
     <servers />
   </component>
